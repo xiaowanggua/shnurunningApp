@@ -1,0 +1,8 @@
+{
+    "cmake.sourceDirectory": "C:/Users/xiaowanggua/D/workspaces/flutter/shnurunningApp/shnurunning/windows",
+    "files.associations": {
+        "vector": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp"
+    }
+}
