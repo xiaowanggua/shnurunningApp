@@ -706,10 +706,44 @@ class _MainPageState extends State<MainPage> {
                         const Text('快速完成模式', style: TextStyle(fontSize: 16)),
                         Checkbox(
                           value: _isQuickCompleteMode,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              _isQuickCompleteMode = value ?? false;
-                            });
+                          onChanged: (bool? value) async {
+                            if (value == true) {
+                              bool? confirmed = await showDialog<bool>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('警告'),
+                                    content: const Text('快速完成模式会使记录开始时间和结束时间异常，更易于被发现，请谨慎使用。'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('取消'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: const Text('我已知晓并继续'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              if (confirmed == true) {
+                                setState(() {
+                                  _isQuickCompleteMode = true;
+                                });
+                              } else {
+                                // User cancelled, ensure checkbox remains unchecked
+                                // No explicit setState needed here if _isQuickCompleteMode wasn't changed yet
+                              }
+                            } else { // value is false or null
+                              setState(() {
+                                _isQuickCompleteMode = false;
+                              });
+                            }
                             _savePersistedData();
                           },
                         ),

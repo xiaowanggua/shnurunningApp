@@ -1,16 +1,37 @@
-# shnurunning
+# SHNU Running
 
-A new Flutter project.
+欢迎使用 SHNU 跑步助手！
 
-## Getting Started
+**本应用目前仅支持奉贤校区。** 如需支持徐汇校区，请身在徐汇校区并具备计算机编程相关知识的同学通过邮箱 xwg@xiaowanggua.top 联系。
 
-This project is a starting point for a Flutter application.
+## 功能介绍
 
-A few resources to get you started if this is your first Flutter project:
+### 1. 账户管理
+   - 在主页左上角的下拉框中，您可以选择 **新建** 来创建一个新的跑步账户。
+   - 在新建账户页面，输入备注名称。在您的计算机上打开体锻打卡微信小程序后，点击 **获取** 按钮，应用将尝试自动获取您的账号ID。
+   - 保存后，新账户会出现在主页的下拉列表中。
+   - 当您选择一个已有的账户后，其账号ID会自动复制到剪贴板，方便您在其他地方使用。
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 2. 参数设置
+   - 在主页中央区域，您可以设置每次跑步的 **分钟**、**秒**、**公里数** 和 **次数**。
+   - **快速完成模式**：勾选此模式后，跑步将不需要等待倒计时，直接标记为完成。
+     - **警告**：此模式会导致记录的开始时间和结束时间异常，从而更容易被系统检测到，请谨慎使用。
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 3. 开始跑步
+   - 设置好所有参数并选择一个有效账户后，点击主页底部的 **开始** 按钮。
+   - 应用会导航至跑步进度页面，显示当前的倒计时和剩余的跑步次数。
+   - 如果在跑步过程中需要停止，可以点击进度页面上的 **取消** 按钮。
+
+### 4. 日志功能
+   - 本应用会记录关键操作的日志。
+   - 您可以在“帮助与用法”页面（通过主页右上角问号图标进入）查看到日志预览。
+   - 点击“帮助与用法”页面中的 **保存日志到本地** 按钮，可以将当前的日志内容保存到一个文本文件中。这在您需要排查问题或寻求帮助时非常有用。
+   - 如果您在使用过程中遇到任何问题或需要帮助，请附带详细的日志和问题描述，发送邮件至 xwg@xiaowanggua.top。
+
+## 免责声明
+
+- 本程序仅供学习和研究使用。使用本程序进行学校体锻打卡自动代打可能违反学校的相关规定和政策。
+- 用户在使用本程序前，应充分了解并严格遵守所有相关的学校规定和国家法律法规。
+- 开发者不对任何因使用本程序而产生的后果负责，包括但不限于学术处罚、法律责任或其他任何形式的损失或损害。
+- 用户需自行承担使用本程序所带来的一切风险和责任。
+- 请勿将本程序用于任何非法或不道德的用途。

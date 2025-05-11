@@ -152,47 +152,90 @@ class _ProgressPageState extends State<ProgressPage> {
     print("开始新的跑步序列，用户ID: ${widget.userId}");
     if (_isCancelled) return;
 
-    // 1. 新建一次跑步
-    try {
-      print("尝试新建跑步...");
-      final response = await http.post(
-        Uri.parse(URL_START_RUNNING),
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {'userId': widget.userId!},
-      ).timeout(const Duration(seconds: 10));
+    int retriesForSelectRoute = 0;
+    const int maxRetriesForSelectRoute = 2;
 
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        print("新建跑步API响应: $responseData");
-        if (responseData['status'] == 'fail' && responseData['data']?['errCode'] == 10002) {
-          print("新建跑步失败: ${responseData['data']?['errMsg']}");
-          _showErrorAndPop('请在体锻打卡点开一次开始跑步，并直接结束一次。');
-          return;
-        } else if (responseData['status'] != 'fail' && responseData['data']?['runningRecord'] != null) {
-          _recordId = responseData['data']['runningRecord'].toString();
-          _startTime = DateTime.now();
-          print("新建跑步成功，Record ID: $_recordId, 开始时间: $_startTime");
-          await _saveRunState(); // 保存初始状态
-          // 2. 打卡点0,1,2,3
-          if (widget.isQuickMode) {
-            print("快速模式，跳过打卡点和倒计时，直接完成本次跑步。");
-            await _performFinishRun(); // 快速模式直接结束
-            _runCompleted();
+    while (retriesForSelectRoute <= maxRetriesForSelectRoute) {
+      // 1. 新建一次跑步
+      try {
+        print("尝试新建跑步... (尝试次数: ${retriesForSelectRoute + 1})");
+        final response = await http.post(
+          Uri.parse(URL_START_RUNNING),
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: {'userId': widget.userId!},
+        ).timeout(const Duration(seconds: 10));
+
+        if (response.statusCode == 200) {
+          final responseData = json.decode(response.body);
+          print("新建跑步API响应: $responseData");
+
+          if (responseData['status'] == 'fail' && responseData['data']?['errCode'] == 10002) {
+            print("新建跑步失败，errCode 10002: ${responseData['data']?['errMsg']}");
+            if (retriesForSelectRoute < maxRetriesForSelectRoute) {
+              retriesForSelectRoute++;
+              print("尝试调用 selectRandomRoute API (第 $retriesForSelectRoute 次)");
+              try {
+                final selectRouteResponse = await http.post(
+                  Uri.parse('https://cpapp.1lesson.cn/api/route/selectRandomRoute'),
+                  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                  body: {
+                    'userId': widget.userId!,
+                    'posLongitude': '121.51818147705432',
+                    'posLatitude': '30.837721567871231',
+                  },
+                ).timeout(const Duration(seconds: 10));
+
+                if (selectRouteResponse.statusCode == 200) {
+                  print("selectRandomRoute API 成功: ${selectRouteResponse.body}");
+                  // 成功后继续循环，再次尝试新建跑步
+                  await Future.delayed(const Duration(milliseconds: 500)); // 短暂延迟
+                  continue;
+                } else {
+                  print("selectRandomRoute API 失败，状态码: ${selectRouteResponse.statusCode}, 响应: ${selectRouteResponse.body}");
+                  // selectRandomRoute 失败，不再重试，执行原始错误逻辑
+                  _showErrorAndPop('选择随机路线失败，请稍后再试或检查网络。');
+                  return;
+                }
+              } catch (e) {
+                print("调用 selectRandomRoute API 时发生异常: $e");
+                _showErrorAndPop('选择随机路线时发生错误: ${e.toString()}');
+                return;
+              }
+            } else {
+              // 达到最大重试次数，仍然是 10002 错误
+              print("已达到最大重试次数，新建跑步仍然失败 (errCode 10002)。");
+              _showErrorAndPop('请在体锻打卡点开一次开始跑步，并直接结束一次。');
+              return;
+            }
+          } else if (responseData['status'] != 'fail' && responseData['data']?['runningRecord'] != null) {
+            _recordId = responseData['data']['runningRecord'].toString();
+            _startTime = DateTime.now();
+            print("新建跑步成功，Record ID: $_recordId, 开始时间: $_startTime");
+            await _saveRunState(); // 保存初始状态
+            if (widget.isQuickMode) {
+              print("快速模式，跳过打卡点和倒计时，直接完成本次跑步。");
+              await _performFinishRun();
+              _runCompleted();
+            } else {
+              await _performSignIns();
+              _startTimer();
+            }
+            return; // 成功则退出循环和函数
           } else {
-            await _performSignIns();
-            _startTimer();
+            print("新建跑步失败，未知错误或响应格式不符: $responseData");
+            _showErrorAndPop('新建跑步失败，请检查网络或稍后再试。');
+            return; // 失败则退出
           }
         } else {
-          print("新建跑步失败，未知错误或响应格式不符: $responseData");
-          _showErrorAndPop('新建跑步失败，请检查网络或稍后再试。');
+          print("新建跑步API请求失败，状态码: ${response.statusCode}, 响应: ${response.body}");
+          _showErrorAndPop('新建跑步请求失败 (HTTP ${response.statusCode})，请检查网络。');
+          return; // 失败则退出
         }
-      } else {
-        print("新建跑步API请求失败，状态码: ${response.statusCode}, 响应: ${response.body}");
-        _showErrorAndPop('新建跑步请求失败 (HTTP ${response.statusCode})，请检查网络。');
+      } catch (e) {
+        print("新建跑步时发生异常: $e");
+        _showErrorAndPop('新建跑步时发生错误: ${e.toString()}');
+        return; // 发生异常则退出
       }
-    } catch (e) {
-      print("新建跑步时发生异常: $e");
-      _showErrorAndPop('新建跑步时发生错误: ${e.toString()}');
     }
   }
 
