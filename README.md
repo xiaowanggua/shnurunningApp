@@ -1,7 +1,8 @@
 # SHNU Running
 
 欢迎使用 SHNU 跑步助手！
-
+下载地址：[https://wwwh.lanzoul.com/i7Cfq2w07amj](https://wwwh.lanzoul.com/i7Cfq2w07amj)
+目前应用只支持windows平台，后续会添加对于安卓的支持，但是由于系统限制，安卓版本不会支持获取账号id功能。
 **本应用目前仅支持奉贤校区。** 如需支持徐汇校区，请身在徐汇校区并具备计算机编程相关知识的同学通过邮箱 xwg@xiaowanggua.top 联系。
 
 ## 功能介绍
