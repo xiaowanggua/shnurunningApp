@@ -5,7 +5,7 @@
 下载地址：
 windows: [https://wwwh.lanzoul.com/i7Cfq2w07amj](https://wwwh.lanzoul.com/i7Cfq2w07amj)
 
-android  请去右侧Release页面下载
+android  请去右侧Release页面下载(先别下！我传的这个包有问题)
 
 安卓由于系统限制，**安卓版本不会支持获取账号id功能**，请在windows版本获取账号id后复制到安卓版本里。
 
